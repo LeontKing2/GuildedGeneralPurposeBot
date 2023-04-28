@@ -4,21 +4,21 @@ import os
 import nextguild as ng
 dotenv.loadenv()
 bot = ng.Client(os.getenv("GUILDED_BOT_TOKEN"))
-event = ng.Event(bot)
+events = ng.Event(bot)
 
 
-@event.on_ready
+@events.on_ready
 async def onready():
     print(f"Logged In As:  {bot.get_bot_user_id()}")
 
 
-@event.on_message
+@events.on_message
 async def pingcommand(message):
     if message.content == "ab!ping":
         bot.send_message(channel_id=message.channel_id, content="Pongyang!")
 
 
-@event.on_message
+@events.on_message
 async def bancommand(message):
     if message.content.startswith("ab!ban"):
         authorid = message.author_id
@@ -42,7 +42,7 @@ async def bancommand(message):
                 content=f"Sam I wont allow you to use this command. sorry")
 
 
-@event.on_message
+@events.on_message
 async def kickcommand(message):
     if message.content.startswith("ab!kick"):
         authorid = message.author_id
@@ -66,7 +66,7 @@ async def kickcommand(message):
                 content=f"Sam i wont allow you to use this command. sorry")
 
 
-@event.on_message
+@events.on_message
 async def jokecommand(message):
     if message.content.startswith("ab!getjoke"):
         url = "https://icanhazdadjoke.com/"
@@ -83,3 +83,4 @@ async def jokecommand(message):
             bot.send_message(
                 channel_id=message.channel_id,
                 content=f"Error Happened: {response.status_code}")
+events.run()
