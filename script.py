@@ -83,4 +83,12 @@ async def jokecommand(message):
             bot.send_message(
                 channel_id=message.channel_id,
                 content=f"Error Happened: {response.status_code}")
+
+
+@events.on_member_join
+async def memberjoin(user):
+    member = user["user"]["name"]
+    bot.send_message(
+        channel_id="30550ef9-4028-41ce-a311-673a77a185c6",
+        content=f"{member} joined the Server! Welcome him in #general")
 events.run()
