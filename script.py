@@ -26,20 +26,22 @@ async def bancommand(message):
             mysubstring = "ab!ban"
             words = message.content.split()
             index = words.index(mysubstring)
-            result = ' '.join(words[index + 1:])
+            result = " ".join(words[index + 1:])
             try:
                 bot.ban_member(result)
                 bot.send_message(
-                    channel_id=message.channel_id,
-                    content=f"Banned {result}")
+                    channel_id=message.channel_id, content=f"Banned {result}"
+                )
             except BaseException:
                 bot.send_message(
                     channel_id=message.channel_id,
-                    content=f"You Either Entered a wrong/invalid UserId or Something happened within guildeds api servers UserID: {result}")
+                    content=f"You Either Entered a wrong/invalid UserId or Something happened within guildeds api servers UserID: {result}",
+                )
         else:
             bot.send_message(
                 channel_id=message.channel_id,
-                content=f"Sam I wont allow you to use this command. sorry")
+                content=f"Sam I wont allow you to use this command. sorry",
+            )
 
 
 @events.on_message
@@ -50,35 +52,49 @@ async def kickcommand(message):
             mysubstring = "ab!kick"
             words = message.content.split()
             index = words.index(mysubstring)
-            result = ' '.join(words[index:1:])
+            result = " ".join(words[index:1:])
             try:
                 bot.ban_member(result)
                 bot.send_message(
-                    channel_id=message.channel_id,
-                    content=f"Kicked {result}")
+                    channel_id=message.channel_id, content=f"Kicked {result}"
+                )
             except BaseException:
                 bot.send_message(
                     channel_id=message.channel_id,
-                    content=f"You Either Entered a wrong/invalid UserId or Something happened within guildeds api servers UserID: {result}")
+                    content=f"You Either Entered a wrong/invalid UserId or Something happened within guildeds api servers UserID: {result}",
+                )
         else:
             bot.send_message(
                 channel_id=message.channel_id,
-                content=f"Sam i wont allow you to use this command. sorry")
+                content=f"Sam i wont allow you to use this command. sorry",
+            )
 
 
 @events.on_message
 async def jokecommand(message):
     if message.content.startswith("ab!getjoke"):
-        url = "https://icanhazdadjoke.com/"
+        url = "https://v2.jokeapi.dev/joke/Programming,Miscellaneous,Dark,Pun,Spooky,Christmas"
         headers = {
             "Accept": "application/json",
-            "User-agent": "Guilded General Purpose bot(https://github.com/LeontKing2/GuildedGeneralPurposeBot)"}
-        response = requests.get(url, headers=headers)
+            "User-agent": "Guilded General Purpose bot(https://github.com/LeontKing2/GuildedGeneralPurposeBot)",
+        }
+        params = {"format": "json", "lang": "en", "amount": "1"}
+
+        response = requests.get(url, headers=headers, params=params)
         if response.status_code == 200:
-            joke = response.json()["joke"]
-            bot.send_message(
-                channel_id=message.channel_id,
-                content=f"Joke: {joke}")
+            data = json.loads(response.text)
+            if data["type"] == "twopart":
+                setup = data["setup"]
+                delivery = data["delivery"]
+                joke = f"{setup +' ' +  delivery}"
+                bot.send_message(
+                    channel_id=message.channel_id,
+                    content=f"Joke: {joke}")
+            else:
+                joke = data["joke"]
+                bot.send_message(
+                    channel_id=message.channel_id,
+                    content=f"Joke: {joke}")
         else:
             bot.send_message(
                 channel_id=message.channel_id,
@@ -86,9 +102,32 @@ async def jokecommand(message):
 
 
 @events.on_member_join
-async def memberjoin(user):
-    member = user["user"]["name"]
+async def memberjoin(thing):
+    member = thing["member"]["user"]["name"]
+    serverid = thing["serverId"]
+    defaultChannelId = bot.get_server(serverid)["defaultChannelId"]
     bot.send_message(
-        channel_id="30550ef9-4028-41ce-a311-673a77a185c6",
-        content=f"{member} joined the Server! Welcome him in #general")
+        channel_id=defaultChannelId,
+        content=f"@{member} joined the Server! Welcome him in #general")
+
+
+@events.on_member_leave
+async def memberleave(thing):
+    memberid = thing["userId"]
+    serverid = thing["serverId"]
+    server = bot.get_server(serverid)
+    defaultChannelId = server["defaultChannelId"]
+    bot.send_message(
+        channel_id=defaultChannelId,
+        content=f"@{memberid} left the Server! I hope he comes back.")
+
+
+@events.on_bot_membership_created
+async def membershipcreated(thing):
+    defaultChannelId = thing["server"]["defaultChannelId"]
+    bot.send_message(
+        channel_id=defaultChannelId,
+        content="Thank you for adding me to this server! I am currently in testing mode.")
+
+
 events.run()
