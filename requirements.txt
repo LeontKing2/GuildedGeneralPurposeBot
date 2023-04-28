@@ -1,0 +1,4 @@
+nextguild
+requests
+websockets
+python_dotenv
